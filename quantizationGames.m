@@ -5,8 +5,8 @@
  x = linspace(0,1,2048); %Create 1000 samples from [0,pi/2)
  %y = 0.5*(sin(200*pi*x) + sin(1638*pi*x)); %Make an input dataset with 2 distinct peaks
 % freq = linspace(-0.5,0.5,2048); %Only want to plot 0-0.5
-[y, Fs] = audioread('orinoccio.wav');
-%[y, Fs] = audioread('thank.wav');
+%[y, Fs] = audioread('orinoccio.wav');
+[y, Fs] = audioread('thank.wav');
 
 b_h0 = 0.125*[-1 2 6 2 -1];
 a_h0 = 1;
@@ -47,24 +47,24 @@ Y01 = W1(1:2:end);
 
 %==== Quantization =====
 
-%--- High band ----
-bits_Y1 = 1;
+% %--- High band ----
+bits_Y1 = 2;
 scale_Y1 = max(abs(Y1))/(1-pow2(-bits_Y1));
 Y1_Q = scale_Y1*double(fixed(bits_Y1,Y1/scale_Y1));
 
 %--- Low-high band ---
-bits_Y01 = 6;
+bits_Y01 =6;
 scale_Y01 = max(abs(Y01))/(1-pow2(-bits_Y01));
 Y01_Q = scale_Y01*double(fixed(bits_Y01,Y01/scale_Y01));
 
 %--- Low-low band ---
-bits_Y00 =8;
+bits_Y00 = 6;
 scale_Y00 = max(abs(Y00))/(1-pow2(-bits_Y00));
 Y00_Q = scale_Y00*double(fixed(bits_Y00,Y00/scale_Y00));
 % 
-% Y1_Q = Y1;
-% Y00_Q = Y00;
-% Y01_Q = Y01;
+%  Y1_Q = Y1;
+%  Y00_Q = Y00;
+%  Y01_Q = Y01;
 
 %======= SYNTHESIS FILTER BANK =======
 
@@ -107,8 +107,9 @@ S0 = filter(b_g0,1,R0);
 V = S0 + S1;
 
 expNoise = mean((V(10:end)-y(1:end-9)').^2);
-expY = mean(y.^2);
+expY = mean(y(1:end-9).^2);
 SQNR = expY/expNoise
+dbSQNR = 10*log10(SQNR)
 %% Plotting %%
 
 % % Input
@@ -135,7 +136,7 @@ SQNR = expY/expNoise
 % title('PSD of test signal HP filtered with H_1(z)');
 % xlabel('Normalized Frequency (\nu) [2\pi rad/sample]')
 % ylabel('Magnitude [dB]');
-% saveas(figure(2),'testSignal_U1.eps','epsc');
+% c;
 % 
 % % High pass downsample
 % [H, w] = freqz(Y1);
